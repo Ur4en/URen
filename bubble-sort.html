@@ -1,183 +1,279 @@
 <!DOCTYPE html>
 <html lang="zh-tw">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>氣泡排序法</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      color: #fff;
-      text-align: center;
-      padding: 20px;
-    }
-
-    #barContainer {
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      height: 300px;
-      margin: 20px auto;
-      border: 2px solid #fff;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      overflow: hidden;
-    }
-
-    .bar {
-      width: 30px;
-      margin: 0 5px;
-      background-color: #007bff;
-      text-align: center;
-      color: #fff;
-      font-size: 14px;
-      border-radius: 5px 5px 0 0;
-      transition: height 0.5s, background-color 0.5s, transform 0.5s;
-    }
-
-    #controls {
-      margin-top: 20px;
-    }
-
-    button {
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      margin: 5px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #description {
-      margin-top: 20px;
-      font-size: 18px;
-    }
-
-    .highlight {
-      color: #ffeb3b;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>氣泡排序動畫</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    max-width: 800px;
+    width: 100%;
+}
+h1 {
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.input-section {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.input-section label {
+    font-size: 18px;
+}
+.input-section input {
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 60px;
+    text-align: center;
+}
+.input-section button {
+    padding: 8px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.input-section button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.array {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+.bar {
+    width: 40px;
+    margin: 0 3px;
+    background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+    transition: all 0.5s;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.comparing {
+    background: linear-gradient(180deg, #ff6b6b 0%, #ee5a24 100%);
+    animation: pulse 0.5s infinite alternate;
+}
+.sorted {
+    background: linear-gradient(180deg, #51cf66 0%, #40c057 100%);
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+}
+#comment {
+    font-size: 20px;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    min-height: 30px;
+}
+.controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+button {
+    padding: 12px 25px;
+    font-size: 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+</style>
 </head>
 <body>
-  <h1>氣泡排序法</h1>
-  <div id="barContainer"></div>
-  <div id="controls">
-    <button onclick="startSort()">開始排序</button>
-    <button onclick="pauseSort()">暫停</button>
-    <button onclick="resumeSort()">繼續</button>
-    <button onclick="nextStep()">下一步</button>
-    <button onclick="resetBars()">重置</button>
-  </div>
-  <div id="description"></div>
-  <div style="margin-top: 20px;">
-    <a href="index.html" style="color: #fff; text-decoration: underline;">回到首頁</a>
-  </div>
-  <script>
-    // JavaScript 程式碼保持不變
-    const barContainer = document.getElementById('barContainer');
-    const description = document.getElementById('description');
-    let bars = [];
-    let arr = [];
-    let i = 0, j = 0;
-    let isPaused = false;
-    let isStepMode = false;
+<div class="container">
+<h1>氣泡排序動畫</h1>
+<div class="input-section">
+<label for="arraySize">數組大小：</label>
+<input type="number" id="arraySize" min="5" max="20" value="7">
+<button onclick="generateNewArray()">生成新數組</button>
+</div>
+<div class="array" id="array"></div>
+<div id="comment">準備開始排序</div>
+<div class="controls">
+<button onclick="startAuto()">自動</button>
+<button onclick="pause()">暫停</button>
+<button onclick="next()">下一步</button>
+<button onclick="reset()">重置</button>
+<button onclick="window.location.href='index.html'">回主頁</button>
+</div>
+</div>
+<script>
+let array = [64, 34, 25, 12, 22, 11, 90];
+let bars = [];
+let isPaused = true;
+let isAuto = false;
+let timeoutId = null;
+let currentI = 0;
+let currentJ = 0;
 
-    function resetBars() {
-      barContainer.innerHTML = '';
-      arr = Array.from({ length: 10 }, () => Math.floor(Math.random() * 20) + 1);
-      bars = arr.map(value => {
+function generateNewArray() {
+    const size = parseInt(document.getElementById('arraySize').value);
+    if (size < 5 || size > 20) {
+        alert('數組大小必須在5到20之間');
+        return;
+    }
+    array = [];
+    for (let i = 0; i < size; i++) {
+        array.push(Math.floor(Math.random() * 100) + 1);
+    }
+    reset();
+}
+
+function createBars() {
+    const arrayDiv = document.getElementById('array');
+    arrayDiv.innerHTML = '';
+    bars = [];
+    for (let i = 0; i < array.length; i++) {
         const bar = document.createElement('div');
         bar.className = 'bar';
-        bar.style.height = `${value * 10}px`;
-        bar.textContent = value;
-        barContainer.appendChild(bar);
-        return bar;
-      });
-      i = 0;
-      j = 0;
-      isPaused = false;
-      isStepMode = false;
-      description.textContent = '';
+        bar.style.height = array[i] * 3 + 'px';
+        bar.textContent = array[i];
+        arrayDiv.appendChild(bar);
+        bars.push(bar);
     }
+}
 
-    async function swapBars(index1, index2) {
-      const bar1 = bars[index1];
-      const bar2 = bars[index2];
-      bar1.style.transform = `translateX(${(index2 - index1) * 35}px)`;
-      bar2.style.transform = `translateX(${(index1 - index2) * 35}px)`;
-      await new Promise(resolve => setTimeout(resolve, 500));
-      [arr[index1], arr[index2]] = [arr[index2], arr[index1]];
-      bar1.style.transform = 'translateX(0)';
-      bar2.style.transform = 'translateX(0)';
-      bar1.style.height = `${arr[index1] * 10}px`;
-      bar1.textContent = arr[index1];
-      bar2.style.height = `${arr[index2] * 10}px`;
-      bar2.textContent = arr[index2];
-    }
+function swap(i, j) {
+    [array[i], array[j]] = [array[j], array[i]];
+    const tempHeight = bars[i].style.height;
+    const tempText = bars[i].textContent;
+    bars[i].style.height = bars[j].style.height;
+    bars[i].textContent = bars[j].textContent;
+    bars[j].style.height = tempHeight;
+    bars[j].textContent = tempText;
+}
 
-    async function bubbleSortStep() {
-      if (i < arr.length - 1) {
-        if (j < arr.length - i - 1) {
-          bars[j].style.backgroundColor = 'red';
-          bars[j + 1].style.backgroundColor = 'red';
-          description.innerHTML = `比較 <span class="highlight">${arr[j]}</span> 和 <span class="highlight">${arr[j + 1]}</span>`;
-          await new Promise(resolve => setTimeout(resolve, 500));
-          if (arr[j] > arr[j + 1]) {
-            description.innerHTML = `<span class="highlight">${arr[j]}</span> 比 <span class="highlight">${arr[j + 1]}</span> 大，交換位置。`;
-            await swapBars(j, j + 1);
-          } else {
-            description.innerHTML = `<span class="highlight">${arr[j]}</span> 比 <span class="highlight">${arr[j + 1]}</span> 小，不交換。`;
-          }
-          bars[j].style.backgroundColor = '#007bff';
-          bars[j + 1].style.backgroundColor = '#007bff';
-          j++;
-        } else {
-          j = 0;
-          i++;
-        }
-      } else {
-        Array.from(bars).forEach(bar => bar.style.backgroundColor = 'gold');
-        description.textContent = '排序完成！結果為：' + arr.join(', ');
+function updateComment(text) {
+    document.getElementById('comment').textContent = text;
+}
+
+function nextStep() {
+    if (currentI >= array.length - 1) {
+        updateComment("排序完成！");
         return;
-      }
-      if (!isPaused && !isStepMode) {
-        bubbleSortStep();
-      }
     }
-
-    function startSort() {
-      isPaused = false;
-      isStepMode = false;
-      bubbleSortStep();
+    if (currentJ >= array.length - currentI - 1) {
+        bars[array.length - currentI - 1].classList.add('sorted');
+        currentI++;
+        currentJ = 0;
+        if (currentI >= array.length - 1) {
+            bars[0].classList.add('sorted');
+            updateComment("排序完成！");
+            return;
+        }
+        nextStep();
+        return;
     }
+    bars[currentJ].classList.add('comparing');
+    bars[currentJ + 1].classList.add('comparing');
+    updateComment(`比較 ${array[currentJ]} 和 ${array[currentJ + 1]}`);
+    setTimeout(() => {
+        if (array[currentJ] > array[currentJ + 1]) {
+            updateComment(`因為 ${array[currentJ]} > ${array[currentJ + 1]}，交換`);
+            swap(currentJ, currentJ + 1);
+            setTimeout(() => {
+                bars[currentJ].classList.remove('comparing');
+                bars[currentJ + 1].classList.remove('comparing');
+                currentJ++;
+                if (isAuto && !isPaused) {
+                    timeoutId = setTimeout(nextStep, 1000);
+                }
+            }, 500);
+        } else {
+            updateComment(`${array[currentJ]} <= ${array[currentJ + 1]}，無需交換`);
+            setTimeout(() => {
+                bars[currentJ].classList.remove('comparing');
+                bars[currentJ + 1].classList.remove('comparing');
+                currentJ++;
+                if (isAuto && !isPaused) {
+                    timeoutId = setTimeout(nextStep, 1000);
+                }
+            }, 500);
+        }
+    }, 500);
+}
 
-    function pauseSort() {
-      isPaused = true;
+function startAuto() {
+    isAuto = true;
+    isPaused = false;
+    if (timeoutId) clearTimeout(timeoutId);
+    nextStep();
+}
+
+function pause() {
+    isPaused = true;
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
     }
+}
 
-    function resumeSort() {
-      if (isPaused) {
-        isPaused = false;
-        bubbleSortStep();
-      }
+function next() {
+    if (isAuto) {
+        pause();
     }
+    nextStep();
+}
 
-    function nextStep() {
-      isStepMode = true;
-      if (i < arr.length - 1) {
-        bubbleSortStep();
-      }
-    }
+function reset() {
+    currentI = 0;
+    currentJ = 0;
+    isPaused = true;
+    isAuto = false;
+    if (timeoutId) clearTimeout(timeoutId);
+    createBars();
+    updateComment("準備開始排序");
+}
 
-    resetBars();
-  </script>
+createBars();
+</script>
 </body>
 </html>

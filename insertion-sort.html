@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+<meta charset="UTF-8">
+<title>插入排序動畫</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    max-width: 800px;
+    width: 100%;
+}
+h1 {
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.input-section {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.input-section label {
+    font-size: 18px;
+}
+.input-section input {
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 60px;
+    text-align: center;
+}
+.input-section button {
+    padding: 8px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.input-section button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.array {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+.bar {
+    width: 40px;
+    margin: 0 3px;
+    background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+    transition: all 0.5s;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.comparing {
+    background: linear-gradient(180deg, #ff6b6b 0%, #ee5a24 100%);
+    animation: pulse 0.5s infinite alternate;
+}
+.sorted {
+    background: linear-gradient(180deg, #51cf66 0%, #40c057 100%);
+}
+.key {
+    background: linear-gradient(180deg, #ffd43b 0%, #fab005 100%);
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+}
+#comment {
+    font-size: 20px;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    min-height: 30px;
+}
+.controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+button {
+    padding: 12px 25px;
+    font-size: 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>插入排序動畫</h1>
+<div class="input-section">
+<label for="arraySize">數組大小：</label>
+<input type="number" id="arraySize" min="5" max="20" value="7">
+<button onclick="generateNewArray()">生成新數組</button>
+</div>
+<div class="array" id="array"></div>
+<div id="comment">準備開始排序</div>
+<div id="currentArray"></div>
+<div class="controls">
+<button onclick="startAuto()">自動</button>
+<button onclick="pause()">暫停</button>
+<button onclick="next()">下一步</button>
+<button onclick="reset()">重置</button>
+<button onclick="window.location.href='index.html'">回主頁</button>
+</div>
+</div>
+<script>
+let array = [64, 34, 25, 12, 22, 11, 90];
+let bars = [];
+let isPaused = true;
+let isAuto = false;
+let timeoutId = null;
+let currentI = 1;
+let currentJ = 0;
+let key = 0;
+
+function generateNewArray() {
+    const size = parseInt(document.getElementById('arraySize').value);
+    if (size < 5 || size > 20) {
+        alert('數組大小必須在5到20之間');
+        return;
+    }
+    array = [];
+    for (let i = 0; i < size; i++) {
+        array.push(Math.floor(Math.random() * 100) + 1);
+    }
+    reset();
+}
+
+function createBars() {
+    const arrayDiv = document.getElementById('array');
+    arrayDiv.innerHTML = '';
+    bars = [];
+    for (let i = 0; i < array.length; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = array[i] * 3 + 'px';
+        bar.textContent = array[i];
+        arrayDiv.appendChild(bar);
+        bars.push(bar);
+    }
+}
+
+function swap(i, j) {
+    [array[i], array[j]] = [array[j], array[i]];
+    const tempHeight = bars[i].style.height;
+    const tempText = bars[i].textContent;
+    bars[i].style.height = bars[j].style.height;
+    bars[i].textContent = bars[j].textContent;
+    bars[j].style.height = tempHeight;
+    bars[j].textContent = tempText;
+}
+
+function updateComment(text) {
+    document.getElementById('comment').textContent = text;
+    document.getElementById('currentArray').textContent = '當前數組: [' + array.join(', ') + ']';
+}
+
+function nextStep() {
+    if (currentI >= array.length) {
+        updateComment("排序完成！");
+        return;
+    }
+    if (currentJ === -1) {
+        // 插入完成
+        bars[currentI].classList.remove('key');
+        bars[currentI].classList.add('sorted');
+        currentI++;
+        if (currentI < array.length) {
+            key = array[currentI];
+            bars[currentI].classList.add('key');
+            updateComment(`取出元素 ${key} 作為key`);
+            currentJ = currentI - 1;
+        }
+        if (isAuto && !isPaused) {
+            timeoutId = setTimeout(nextStep, 2000);
+        }
+        return;
+    }
+    if (currentJ < 0) {
+        // 開始新一輪
+        key = array[currentI];
+        bars[currentI].classList.add('key');
+        updateComment(`取出元素 ${key} 作為key`);
+        currentJ = currentI - 1;
+        if (isAuto && !isPaused) {
+            timeoutId = setTimeout(nextStep, 2000);
+        }
+        return;
+    }
+    // 比較
+    bars[currentJ].classList.add('comparing');
+    updateComment(`比較 key ${key} 與 ${array[currentJ]}`);
+    setTimeout(() => {
+        if (array[currentJ] > key) {
+            // 移位
+            array[currentJ + 1] = array[currentJ];
+            bars[currentJ + 1].style.height = bars[currentJ].style.height;
+            bars[currentJ + 1].textContent = bars[currentJ].textContent;
+            updateComment(`因為 ${array[currentJ]} > ${key}，移位`);
+            bars[currentJ].classList.remove('comparing');
+            currentJ--;
+            if (currentJ >= 0) {
+                if (isAuto && !isPaused) {
+                    timeoutId = setTimeout(nextStep, 2000);
+                }
+            } else {
+                // 移位到頭, 插入到0
+                array[0] = key;
+                bars[0].style.height = (key * 3) + 'px';
+                bars[0].textContent = key;
+                updateComment(`移位到頭，插入key到位置0`);
+                currentJ = -1;
+                if (isAuto && !isPaused) {
+                    timeoutId = setTimeout(nextStep, 2000);
+                }
+            }
+        } else {
+            // 插入
+            array[currentJ + 1] = key;
+            bars[currentJ + 1].style.height = (key * 3) + 'px';
+            bars[currentJ + 1].textContent = key;
+            updateComment(`${array[currentJ]} <= ${key}，插入key`);
+            bars[currentJ].classList.remove('comparing');
+            currentJ = -1; // 標記插入完成
+            if (isAuto && !isPaused) {
+                timeoutId = setTimeout(nextStep, 2000);
+            }
+        }
+    }, 500);
+}
+
+function startAuto() {
+    isAuto = true;
+    isPaused = false;
+    if (timeoutId) clearTimeout(timeoutId);
+    nextStep();
+}
+
+function pause() {
+    isPaused = true;
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+    }
+}
+
+function next() {
+    if (isAuto) {
+        pause();
+    }
+    nextStep();
+}
+
+function reset() {
+    currentI = 1;
+    currentJ = -2; // 觸發開始新一輪
+    key = 0;
+    isPaused = true;
+    isAuto = false;
+    if (timeoutId) clearTimeout(timeoutId);
+    createBars();
+    updateComment("準備開始排序");
+}
+
+createBars();
+</script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+<meta charset="UTF-8">
+<title>合併排序動畫</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    max-width: 800px;
+    width: 100%;
+}
+h1 {
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.input-section {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+.input-section label {
+    font-size: 18px;
+}
+.input-section input {
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 60px;
+    text-align: center;
+}
+.input-section button {
+    padding: 8px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.input-section button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.array {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    flex-wrap: wrap;
+}
+.bar {
+    width: 40px;
+    margin: 0 3px;
+    background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.comparing {
+    background: linear-gradient(180deg, #ff6b6b 0%, #ee5a24 100%);
+    animation: pulse 0.5s infinite alternate;
+}
+.merging {
+    background: linear-gradient(180deg, #fcc419 0%, #ffd43b 100%);
+}
+.overwrite {
+    background: linear-gradient(180deg, #51cf66 0%, #40c057 100%);
+}
+.sorted {
+    background: linear-gradient(180deg, #5c7cfa 0%, #7c5cff 100%);
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+}
+#comment {
+    font-size: 20px;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    min-height: 30px;
+}
+.controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+button {
+    padding: 12px 25px;
+    font-size: 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>合併排序動畫</h1>
+<div class="input-section">
+<label for="arraySize">數組大小：</label>
+<input type="number" id="arraySize" min="5" max="20" value="8">
+<button onclick="generateNewArray()">生成新數組</button>
+</div>
+<div class="array" id="array"></div>
+<div id="comment">準備開始合併排序</div>
+<div class="controls">
+<button onclick="startAuto()">自動</button>
+<button onclick="pause()">暫停</button>
+<button onclick="next()">下一步</button>
+<button onclick="reset()">重置</button>
+<button onclick="window.location.href='index.html'">回主頁</button>
+</div>
+</div>
+<script>
+let array = [38, 27, 43, 3, 9, 82, 10, 55];
+let bars = [];
+let steps = [];
+let stepIndex = 0;
+let isPaused = true;
+let isAuto = false;
+let timeoutId = null;
+
+function generateNewArray() {
+    const size = parseInt(document.getElementById('arraySize').value, 10);
+    if (size < 5 || size > 20) {
+        alert('數組大小必須在5到20之間');
+        return;
+    }
+    array = [];
+    for (let i = 0; i < size; i++) {
+        array.push(Math.floor(Math.random() * 90) + 10);
+    }
+    reset();
+}
+
+function createBars() {
+    const arrayDiv = document.getElementById('array');
+    arrayDiv.innerHTML = '';
+    bars = [];
+    for (let i = 0; i < array.length; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = array[i] * 3 + 'px';
+        bar.textContent = array[i];
+        arrayDiv.appendChild(bar);
+        bars.push(bar);
+    }
+}
+
+function updateComment(text) {
+    document.getElementById('comment').textContent = text;
+}
+
+function clearHighlights() {
+    bars.forEach(bar => {
+        bar.classList.remove('comparing', 'merging', 'overwrite');
+    });
+}
+
+function highlightRange(start, end) {
+    for (let i = start; i <= end && i < bars.length; i++) {
+        bars[i].classList.add('merging');
+    }
+}
+
+function buildSteps() {
+    steps = [];
+    const workingArr = array.slice();
+    mergeSortSteps(workingArr, 0, array.length - 1);
+    steps.push({ type: 'done' });
+}
+
+function mergeSortSteps(arr, start, end) {
+    if (start >= end) {
+        steps.push({ type: 'divide', start, end, message: `單一元素：${arr[start]}` });
+        return;
+    }
+    steps.push({ type: 'divide', start, end });
+    const mid = Math.floor((start + end) / 2);
+    mergeSortSteps(arr, start, mid);
+    mergeSortSteps(arr, mid + 1, end);
+
+    const merged = [];
+    let left = start;
+    let right = mid + 1;
+    let index = start;
+
+    while (left <= mid && right <= end) {
+        steps.push({
+            type: 'compare',
+            left,
+            right,
+            leftValue: arr[left],
+            rightValue: arr[right],
+            rangeStart: start,
+            rangeEnd: end
+        });
+        if (arr[left] <= arr[right]) {
+            steps.push({
+                type: 'overwrite',
+                index,
+                value: arr[left],
+                rangeStart: start,
+                rangeEnd: end
+            });
+            merged.push(arr[left]);
+            left++;
+        } else {
+            steps.push({
+                type: 'overwrite',
+                index,
+                value: arr[right],
+                rangeStart: start,
+                rangeEnd: end
+            });
+            merged.push(arr[right]);
+            right++;
+        }
+        index++;
+    }
+
+    while (left <= mid) {
+        steps.push({
+            type: 'overwrite',
+            index,
+            value: arr[left],
+            rangeStart: start,
+            rangeEnd: end
+        });
+        merged.push(arr[left]);
+        left++;
+        index++;
+    }
+
+    while (right <= end) {
+        steps.push({
+            type: 'overwrite',
+            index,
+            value: arr[right],
+            rangeStart: start,
+            rangeEnd: end
+        });
+        merged.push(arr[right]);
+        right++;
+        index++;
+    }
+
+    for (let i = 0; i < merged.length; i++) {
+        arr[start + i] = merged[i];
+    }
+    steps.push({ type: 'markSorted', start, end });
+}
+
+function executeStep() {
+    if (stepIndex >= steps.length) {
+        updateComment('排序完成！');
+        return;
+    }
+
+    clearHighlights();
+    const action = steps[stepIndex];
+
+    switch (action.type) {
+        case 'divide':
+            if (action.start === action.end) {
+                updateComment(`已到最小子區間：索引 ${action.start}`);
+                highlightRange(action.start, action.end);
+            } else {
+                updateComment(`拆分子區間：從 ${action.start} 到 ${action.end}`);
+                highlightRange(action.start, action.end);
+            }
+            break;
+        case 'compare':
+            updateComment(`比較 ${action.leftValue} 和 ${action.rightValue}`);
+            highlightRange(action.rangeStart, action.rangeEnd);
+            bars[action.left].classList.add('comparing');
+            bars[action.right].classList.add('comparing');
+            break;
+        case 'overwrite':
+            updateComment(`將 ${action.value} 放到位置 ${action.index}`);
+            highlightRange(action.rangeStart, action.rangeEnd);
+            if (bars[action.index]) {
+                bars[action.index].style.height = action.value * 3 + 'px';
+                bars[action.index].textContent = action.value;
+                bars[action.index].classList.add('overwrite');
+            }
+            break;
+        case 'markSorted':
+            updateComment(`已合併完成子區間：${action.start} 到 ${action.end}`);
+            for (let i = action.start; i <= action.end && i < bars.length; i++) {
+                bars[i].classList.add('sorted');
+            }
+            break;
+        case 'done':
+            updateComment('合併排序完成！所有元素已排序。');
+            bars.forEach(bar => bar.classList.add('sorted'));
+            break;
+        default:
+            break;
+    }
+
+    stepIndex++;
+    if (isAuto && !isPaused && stepIndex < steps.length) {
+        timeoutId = setTimeout(executeStep, 900);
+    }
+}
+
+function startAuto() {
+    if (stepIndex >= steps.length) {
+        return;
+    }
+    isAuto = true;
+    isPaused = false;
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+    }
+    executeStep();
+}
+
+function pause() {
+    isPaused = true;
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+    }
+}
+
+function next() {
+    if (isAuto) {
+        pause();
+    }
+    if (stepIndex < steps.length) {
+        executeStep();
+    }
+}
+
+function reset() {
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+    }
+    stepIndex = 0;
+    isPaused = true;
+    isAuto = false;
+    createBars();
+    buildSteps();
+    updateComment('準備開始合併排序');
+}
+
+createBars();
+buildSteps();
+updateComment('準備開始合併排序');
+</script>
+</body>
+</html>
